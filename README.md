@@ -162,10 +162,13 @@ VITE_API_URL=http://localhost:8000
 
 ## Deployment
 
-See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for step-by-step instructions to deploy the backend + Postgres on Render and the frontend on Vercel.
+See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for step-by-step instructions.
 
-- **Live demo:** _add URL here after deploying_
-- **API docs (deployed):** `<backend-url>/docs`
+- **Live demo (frontend):** https://restaurant-os-livid.vercel.app/
+- **Live backend API:** https://restaurantos-backend-g5vy.onrender.com
+- **API docs (deployed):** https://restaurantos-backend-g5vy.onrender.com/docs
+
+> Note: the backend is on Render's free tier and spins down after inactivity — the first request after idle time may take 30-60 seconds to respond.
 
 ## Known Limitations / Next Steps
 
