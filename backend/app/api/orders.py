@@ -9,11 +9,12 @@ from app.models.ingredient import Ingredient
 from app.models.stock_movement import StockMovement
 from app.schemas.order import OrderCreate, OrderOut
 from app.core.deps import get_current_user
+from app.services.ws_manager import manager
 
 router = APIRouter(prefix="/orders", tags=["orders"])
 
 @router.post("/", response_model=OrderOut)
-def create_order(payload: OrderCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
+async def create_order(payload: OrderCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
     order = Order(table_id=payload.table_id, status="active")
     db.add(order)
     db.flush()
@@ -52,6 +53,13 @@ def create_order(payload: OrderCreate, db: Session = Depends(get_db), user=Depen
 
     db.commit()
     db.refresh(order)
+
+    await manager.broadcast({
+        "event": "new_order",
+        "order_id": order.id,
+        "table_id": order.table_id,
+    })
+
     return order
 
 @router.get("/", response_model=List[OrderOut])

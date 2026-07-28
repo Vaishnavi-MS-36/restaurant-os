@@ -17,6 +17,10 @@ from app.models.purchase_order import PurchaseOrder, PurchaseOrderItem
 from app.models.stock_movement import StockMovement
 from app.models.invoice import Invoice
 from app.models.expense import Expense, ExpenseCategory
+from app.models.warehouse import Warehouse
+from app.models.product import Product, ProductCategory
+from app.models.audit_log import AuditLog
+from app.models.notification import Notification
 from app.core.config import settings
 
 config = context.config

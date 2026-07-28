@@ -12,6 +12,10 @@ import Suppliers from './pages/Suppliers';
 import PurchaseOrders from './pages/PurchaseOrders';
 import Expenses from './pages/Expenses';
 import Insights from './pages/Insights';
+import Staff from './pages/Staff';
+import Warehouses from './pages/Warehouses';
+import Products from './pages/Products';
+import AuditLogs from './pages/AuditLogs';
 
 
 export default function App() {
@@ -70,7 +74,7 @@ export default function App() {
       <Route
         path="/suppliers"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['owner', 'manager', 'store_manager']}>
             <Layout><Suppliers /></Layout>
           </ProtectedRoute>
         }
@@ -78,7 +82,7 @@ export default function App() {
       <Route
         path="/purchase-orders"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['owner', 'manager', 'store_manager']}>
             <Layout><PurchaseOrders /></Layout>
           </ProtectedRoute>
         }
@@ -86,8 +90,40 @@ export default function App() {
       <Route
         path="/expenses"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['owner', 'manager']}>
             <Layout><Expenses /></Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/staff"
+        element={
+          <ProtectedRoute allowedRoles={['owner']}>
+            <Layout><Staff /></Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/warehouses"
+        element={
+          <ProtectedRoute allowedRoles={['owner', 'manager', 'store_manager']}>
+            <Layout><Warehouses /></Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/products"
+        element={
+          <ProtectedRoute allowedRoles={['owner', 'manager', 'store_manager']}>
+            <Layout><Products /></Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/audit-logs"
+        element={
+          <ProtectedRoute allowedRoles={['owner', 'manager']}>
+            <Layout><AuditLogs /></Layout>
           </ProtectedRoute>
         }
       />

@@ -30,3 +30,15 @@ class PurchaseSummary(BaseModel):
 
 class SupplierSummary(BaseModel):
     total_suppliers: int
+
+class ProfitOverview(BaseModel):
+    total_revenue: float
+    total_expenses: float
+    profit: float
+
+class DailySales(BaseModel):
+    date: str
+    revenue: float
+
+class SalesTrend(BaseModel):
+    data: List[DailySales]

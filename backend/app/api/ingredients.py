@@ -20,8 +20,11 @@ def create_ingredient(payload: IngredientCreate, db: Session = Depends(get_db), 
     return ingredient
 
 @router.get("/", response_model=List[IngredientOut])
-def list_ingredients(db: Session = Depends(get_db), user=Depends(get_current_user)):
-    return db.query(Ingredient).all()
+def list_ingredients(search: str = None, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    query = db.query(Ingredient)
+    if search:
+        query = query.filter(Ingredient.name.ilike(f'%{search}%'))
+    return query.all()
 
 @router.get("/{ingredient_id}", response_model=IngredientOut)
 def get_ingredient(ingredient_id: int, db: Session = Depends(get_db), user=Depends(get_current_user)):

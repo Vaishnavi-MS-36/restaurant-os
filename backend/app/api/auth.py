@@ -8,8 +8,13 @@ from app.core.security import hash_password, verify_password, create_access_toke
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+VALID_ROLES = ["owner", "manager", "chef", "waiter", "cashier", "store_manager"]
+
 @router.post("/register", response_model=UserOut)
 def register(user_in: UserCreate, db: Session = Depends(get_db)):
+    if user_in.role not in VALID_ROLES:
+        raise HTTPException(status_code=400, detail=f"Invalid role. Must be one of {VALID_ROLES}")
+
     existing = db.query(User).filter(User.email == user_in.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -32,6 +37,11 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
+        )
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This account has been deactivated. Contact an owner.",
         )
     token = create_access_token(data={"sub": str(user.id), "role": user.role})
     return Token(access_token=token)

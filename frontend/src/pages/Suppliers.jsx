@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import client from '../api/client';
 import Modal from '../components/Modal';
 import FormField from '../components/FormField';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Pencil } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Suppliers() {
@@ -10,22 +10,48 @@ export default function Suppliers() {
   const canManage = ['owner', 'manager'].includes(user?.role);
   const [suppliers, setSuppliers] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
   const [form, setForm] = useState({ name: '', contact_person: '', phone: '', email: '', address: '' });
 
   const load = () => { client.get('/suppliers/').then(res => setSuppliers(res.data)); };
   useEffect(load, []);
 
+  const openCreate = () => {
+    setEditingId(null);
+    setForm({ name: '', contact_person: '', phone: '', email: '', address: '' });
+    setShowModal(true);
+    setError('');
+  };
+
+  const openEdit = (s) => {
+    setEditingId(s.id);
+    setForm({
+      name: s.name,
+      contact_person: s.contact_person || '',
+      phone: s.phone || '',
+      email: s.email || '',
+      address: s.address || '',
+    });
+    setShowModal(true);
+    setError('');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      await client.post('/suppliers/', form);
+      if (editingId) {
+        await client.put(`/suppliers/${editingId}`, form);
+      } else {
+        await client.post('/suppliers/', form);
+      }
       setShowModal(false);
+      setEditingId(null);
       setForm({ name: '', contact_person: '', phone: '', email: '', address: '' });
       load();
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to add supplier');
+      setError(err.response?.data?.detail || 'Failed to save supplier');
     }
   };
 
@@ -42,10 +68,7 @@ export default function Suppliers() {
           <p className="text-cream/50">Manage supplier contacts</p>
         </div>
         {canManage && (
-          <button
-            onClick={() => { setShowModal(true); setError(''); }}
-            className="flex items-center gap-2 bg-terracotta-500 hover:bg-terracotta-600 text-charcoal-950 font-medium px-4 py-2.5 rounded-lg transition-colors"
-          >
+          <button onClick={openCreate} className="flex items-center gap-2 bg-terracotta-500 hover:bg-terracotta-600 text-charcoal-950 font-medium px-4 py-2.5 rounded-lg transition-colors">
             <Plus size={18} /> Add Supplier
           </button>
         )}
@@ -57,9 +80,10 @@ export default function Suppliers() {
             <div className="flex items-start justify-between mb-2">
               <h3 className="font-display text-lg text-cream">{s.name}</h3>
               {canManage && (
-                <button onClick={() => handleDelete(s.id)} className="text-cream/30 hover:text-red-400 transition-colors">
-                  <Trash2 size={16} />
-                </button>
+                <div className="flex gap-2">
+                  <button onClick={() => openEdit(s)} className="text-cream/30 hover:text-terracotta-400 transition-colors"><Pencil size={16} /></button>
+                  <button onClick={() => handleDelete(s.id)} className="text-cream/30 hover:text-red-400 transition-colors"><Trash2 size={16} /></button>
+                </div>
               )}
             </div>
             {s.contact_person && <p className="text-cream/60 text-sm">{s.contact_person}</p>}
@@ -69,16 +93,10 @@ export default function Suppliers() {
         ))}
       </div>
 
-      {suppliers.length === 0 && (
-        <div className="text-center py-16 text-cream/40">No suppliers yet</div>
-      )}
+      {suppliers.length === 0 && <div className="text-center py-16 text-cream/40">No suppliers yet</div>}
 
-      <Modal open={showModal} onClose={() => setShowModal(false)} title="Add Supplier">
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg px-3 py-2 mb-4">
-            {error}
-          </div>
-        )}
+      <Modal open={showModal} onClose={() => setShowModal(false)} title={editingId ? 'Edit Supplier' : 'Add Supplier'}>
+        {error && <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg px-3 py-2 mb-4">{error}</div>}
         <form onSubmit={handleSubmit}>
           <FormField label="Name" required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
           <FormField label="Contact Person" value={form.contact_person} onChange={e => setForm({ ...form, contact_person: e.target.value })} />
@@ -86,7 +104,7 @@ export default function Suppliers() {
           <FormField label="Email" type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
           <FormField label="Address" value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} />
           <button type="submit" className="w-full bg-terracotta-500 hover:bg-terracotta-600 text-charcoal-950 font-medium rounded-lg py-2.5 transition-colors">
-            Add Supplier
+            {editingId ? 'Save Changes' : 'Add Supplier'}
           </button>
         </form>
       </Modal>

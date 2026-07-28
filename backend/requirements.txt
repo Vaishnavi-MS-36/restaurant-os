@@ -11,3 +11,5 @@ pydantic-settings
 google-genai
 openpyxl
 email-validator
+pytest
+httpx

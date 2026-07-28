@@ -1,22 +1,27 @@
 import { NavLink, useNavigate } from 'react-router-dom';
+import NotificationBell from './NotificationBell';
 import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard, UtensilsCrossed, Package, ChefHat,
   Table2, ShoppingCart, Truck, ClipboardList,
-  Receipt, TrendingUp, LogOut
+  Receipt, TrendingUp, LogOut, Users, Warehouse, Box, ScrollText
 } from 'lucide-react';
 
 const navItems = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/menu', label: 'Menu', icon: UtensilsCrossed },
-  { to: '/ingredients', label: 'Ingredients', icon: Package },
-  { to: '/recipes', label: 'Recipes', icon: ChefHat },
-  { to: '/tables', label: 'Tables', icon: Table2 },
-  { to: '/orders', label: 'Orders', icon: ShoppingCart },
-  { to: '/suppliers', label: 'Suppliers', icon: Truck },
-  { to: '/purchase-orders', label: 'Purchase Orders', icon: ClipboardList },
-  { to: '/expenses', label: 'Expenses', icon: Receipt },
-  { to: '/insights', label: 'AI Insights', icon: TrendingUp },
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: null },
+  { to: '/menu', label: 'Menu', icon: UtensilsCrossed, roles: null },
+  { to: '/ingredients', label: 'Ingredients', icon: Package, roles: null },
+  { to: '/recipes', label: 'Recipes', icon: ChefHat, roles: null },
+  { to: '/tables', label: 'Tables', icon: Table2, roles: null },
+  { to: '/orders', label: 'Orders', icon: ShoppingCart, roles: null },
+  { to: '/suppliers', label: 'Suppliers', icon: Truck, roles: ['owner', 'manager', 'store_manager'] },
+  { to: '/warehouses', label: 'Warehouses', icon: Warehouse, roles: ['owner', 'manager', 'store_manager'] },
+  { to: '/products', label: 'Products', icon: Box, roles: ['owner', 'manager', 'store_manager'] },
+  { to: '/purchase-orders', label: 'Purchase Orders', icon: ClipboardList, roles: ['owner', 'manager', 'store_manager'] },
+  { to: '/expenses', label: 'Expenses', icon: Receipt, roles: ['owner', 'manager'] },
+  { to: '/staff', label: 'Staff', icon: Users, roles: ['owner'] },
+  { to: '/audit-logs', label: 'Audit Logs', icon: ScrollText, roles: ['owner', 'manager'] },
+  { to: '/insights', label: 'AI Insights', icon: TrendingUp, roles: null },
 ];
 
 export default function Layout({ children }) {
@@ -37,7 +42,7 @@ export default function Layout({ children }) {
         </div>
 
         <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-          {navItems.map(({ to, label, icon: Icon }) => (
+          {navItems.filter(item => !item.roles || item.roles.includes(user?.role)).map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
@@ -67,7 +72,10 @@ export default function Layout({ children }) {
       </aside>
 
       <main className="flex-1 overflow-y-auto">
-        <div className="p-8">{children}</div>
+        <div className="flex justify-end items-center px-8 pt-6">
+          <NotificationBell />
+        </div>
+        <div className="px-8 pb-8 pt-2">{children}</div>
       </main>
     </div>
   );
